@@ -48,8 +48,6 @@ import repast.simphony.valueLayer.ValueLayerDiffuser;
 
 public class Leaf04Context extends DefaultContext<PhysicalAgent> {
 
-
-	// a journey
 	
 	private int width;
 	private int height;
