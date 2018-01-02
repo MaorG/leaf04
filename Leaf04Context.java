@@ -491,6 +491,12 @@ public class Leaf04Context extends DefaultContext<PhysicalAgent> {
 		}
 		IndexedIterable<PhysicalAgent> allAgents = getObjects(Object.class);
 		if (maxpop != null && maxpop < allAgents.size()) {
+			
+			while (t * stepTime <= endTime) {
+				getOutputManager().output((int) t);
+				t += 1;
+			}
+			
 //			getOutputManager().output((int) t);
 			RunEnvironment.getInstance().endRun();
 		}
