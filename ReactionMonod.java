@@ -55,9 +55,10 @@ public class ReactionMonod extends Reaction{
 						double conc = valueLayer.get(x,y);
 						double mu = (muMax * conc) / (Ks + conc);
 						double newAgentMass = agentMass * Math.exp(mu * dt);
-						totalDeltaBioMass += (newAgentMass - agentMass);
+						b.tempDeltaAgentMass = newAgentMass - agentMass;
+						totalDeltaBioMass += b.tempDeltaAgentMass;
 						
-						b.setMass(newAgentMass);
+						//b.setMass(newAgentMass);
 					}
 				}
 				for (Entry<String, Double> entry : yieldMap.entrySet()) {
@@ -72,10 +73,21 @@ public class ReactionMonod extends Reaction{
 				    	
 
 						GridValueLayer someValueLayer = (GridValueLayer) context.getValueLayer(key);
-						double initialAmount = someValueLayer.get(x,y) * cellArea;
+						double initialAmount = someValueLayer.get(x,y) * cellVolume;
 				    	double finalAmount = Math.max(0.0, initialAmount + deltaAmount);
-				    	someValueLayer.set(finalAmount / cellArea, x,y);
+				    	double ratio = 1.0;
+				    	if (finalAmount == 0.0) {
+				    		ratio = -initialAmount/ deltaAmount;
+				    	}
 				    	
+				    	someValueLayer.set(finalAmount / cellVolume, x,y);
+				    
+				    	agentList = (Iterable<PhysicalAgent>) grid.getObjectsAt(x,y);
+						for (PhysicalAgent b : agentList) {
+							if (b.hasReaction(name)) {
+								b.setMass(b.mass + b.tempDeltaAgentMass * ratio);
+							}
+						}
 				    }
 				}
 			}

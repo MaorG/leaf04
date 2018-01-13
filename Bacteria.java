@@ -74,11 +74,11 @@ public class Bacteria extends PhysicalAgent{
 
 	}
 
-	@Override
-	public void setInitialMass(double mass) {
-		this.mass = initMass;
-		this.radius = Math.sqrt(this.mass / Math.PI);
-	}
+//	@Override
+//	public void setInitialMass(double mass) {
+//		this.mass = initMass;
+//		this.radius = Math.sqrt(this.mass / Math.PI);
+//	}
 	
 	public void setLineageId(long lineageId2) {
 		this.lineageId = lineageId2;
@@ -128,8 +128,9 @@ public class Bacteria extends PhysicalAgent{
 		clone.updateHistory(this.history, false);
 		this.updateHistory(this.history, true);
 
-		this.mass = this.mass * 0.5;
-		this.radius = Math.sqrt(this.mass / Math.PI);
+		setMass(this.mass * 0.5);
+//		this.mass = this.mass * 0.5;
+//		this.radius = Math.sqrt(this.mass / Math.PI);
 		
 		this.oldMass = oldMass * 0.5;
 		clone.oldMass = oldMass * 0.5;

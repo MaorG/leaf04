@@ -24,6 +24,7 @@ public abstract class Reaction {
 	protected Map<String, Double> yieldMap = new HashMap<String, Double>();
 	protected Context<PhysicalAgent> context;
 	protected double cellArea;
+	protected double cellVolume;
 
 
 	public Reaction(Context<PhysicalAgent> context, Node reactionNode) {
@@ -38,6 +39,7 @@ public abstract class Reaction {
 		name = e.getAttribute("name");
 		double gridScale = space.getDimensions().getWidth() / grid.getDimensions().getWidth();
 		cellArea = gridScale * gridScale;
+		cellVolume = ((Leaf04Context)context).cellVolume;
 		
 		Node yieldNode = ParserUtils.getNodesByTagName(reactionNode, "yield").get(0);
 

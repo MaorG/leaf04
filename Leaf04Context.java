@@ -52,6 +52,7 @@ public class Leaf04Context extends DefaultContext<PhysicalAgent> {
 	private int width;
 	private int height;
 	public double scale;
+	public double cellVolume;
 	public double stepTime;
 	public double endTime;
 	public long runId;
@@ -228,6 +229,7 @@ public class Leaf04Context extends DefaultContext<PhysicalAgent> {
 		width = ParserUtils.getIntByName(domainNode, "width");
 		height = ParserUtils.getIntByName(domainNode, "height");
 		scale = ParserUtils.getDoubleByName(domainNode, "scale");
+		cellVolume = ParserUtils.getDoubleByName(domainNode, "cellVolume");
 		stepTime = ParserUtils.getDoubleByName(domainNode, "stepTime");
 		endTime = ParserUtils.getDoubleByName(domainNode, "endTime");
 		maxpop = ParserUtils.getIntByName(domainNode, "maxpop");

@@ -62,6 +62,7 @@ public class PhysicalAgent implements Agent {
 	protected Map<String, Boolean> reactionNamesMap = new HashMap<String, Boolean>();
 	protected Map<String, String> speciesProperties;
 	protected Color color;
+	public double tempDeltaAgentMass;
 	
 	public void setReactionNamesMap(Map<String, Boolean> map) {
 		
@@ -103,12 +104,12 @@ public class PhysicalAgent implements Agent {
 	
 	public void setMass(double mass) {
 		this.mass = mass;
-		this.radius = Math.sqrt(this.mass / Math.PI);
+		this.radius = Math.sqrt(this.mass / Math.PI) * 1e6;
 	}
 
 	public void setInitialMass(double mass) {
 		this.mass = mass;
-		this.radius = Math.sqrt(this.mass / Math.PI);
+		this.radius = Math.sqrt(this.mass / Math.PI) * 1e6;
 	}
 
 	

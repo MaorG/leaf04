@@ -123,7 +123,7 @@ public class Zoo {
 				
 				
 				PhysicalAgent agent = createAgent(agentClassName, agentSpeciesName);
-				((PhysicalAgent)agent).setInitialMass(1.0);
+				((PhysicalAgent)agent).setInitialMass(1.0e-12);
 				
 				if(agent instanceof Bacteria) {
 					((Bacteria) agent).setLineageId(i);
