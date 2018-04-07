@@ -249,7 +249,9 @@ public class Bacteria extends PhysicalAgent{
 			String.valueOf(this.color.getBlue()) +  ", " +
 			String.valueOf(this.lineageId) +  ", " + 
 			String.valueOf(this.history) + ", " + 
-			String.valueOf(this.getNeighborsInRadius(10));
+			String.valueOf(this.getNeighborsInRadius(10)) + ", " +
+			"0";
+
 	}
 
 }

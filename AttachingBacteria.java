@@ -40,6 +40,8 @@ public class AttachingBacteria extends Bacteria {
 	public String speedExpressionStr;
 	public Expr speedExpression;
 	
+	public Double lastAttachDetach;
+	
 	public AttachingBacteria(String speciesName) {
 		super(speciesName);
 		speciesClassName = "AttachingBacteria";
@@ -59,6 +61,7 @@ public class AttachingBacteria extends Bacteria {
 				attached = false;
 			}
 		}
+		this.lastAttachDetach = (double) 0;
 		//checkAttachDetach();
 	}
 
@@ -214,20 +217,27 @@ public class AttachingBacteria extends Bacteria {
 		checkAttachDetachBySolute();
 		if (attached != oldAttachState) {
 			reportAttachDetach("Solute");
+			Context<PhysicalAgent> context = ContextUtils.getContext((Object)this);
+			this.lastAttachDetach = ((Leaf04Context)context).getTicks();
 			return;
 		}
 		
 		checkAttachDetachByNgh();
 		if (attached != oldAttachState) {
 			reportAttachDetach("Ngh");
+			Context<PhysicalAgent> context = ContextUtils.getContext((Object)this);
+			this.lastAttachDetach = ((Leaf04Context)context).getTicks();
 			return;
 		}
 		
 		checkAttachDetachByRandom();
 		if (attached != oldAttachState) {
 			reportAttachDetach("Random");
+			Context<PhysicalAgent> context = ContextUtils.getContext((Object)this);
+			this.lastAttachDetach = ((Leaf04Context)context).getTicks();
 			return;
 		}
+		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -305,6 +315,13 @@ public class AttachingBacteria extends Bacteria {
 		if (attached == false) {
 			int count = getNeighborsInRadius(nghRadius);
 			
+			if (count > 8)
+			{
+				count = getNeighborsInRadius(nghRadius);
+			}
+				
+				
+			
 			double rnd = RandomHelper.nextDoubleFromTo(0.0, 1.0);
 			
 			Variable X = Variable.make("X");
@@ -318,7 +335,12 @@ public class AttachingBacteria extends Bacteria {
 			
 			double chance = attachAboveAmountExpression.value();
 			
-			double chancePerTimeStep = 1 - Math.pow(1-chance, stepTime);
+			double chancePerTimeStep;
+			if (chance >= 1.0)
+				chancePerTimeStep = 1.0;
+			else
+				chancePerTimeStep = 1 - Math.pow(1-chance, stepTime);
+		
 	
 			if (rnd < chancePerTimeStep) {
 				attached = true;
@@ -463,9 +485,32 @@ public class AttachingBacteria extends Bacteria {
 			Bacteria clone = super.doReproduce();
 			
 			clone.attached = this.attached;
+			((AttachingBacteria) clone).lastAttachDetach = this.lastAttachDetach;
 			
 			this.checkAttachDetachBirth();
 			((AttachingBacteria) clone).checkAttachDetachBirth();
 		}
+	}
+	
+	@Override
+	public String getGeo() {
+		NdPoint myPoint = space.getLocation(this);
+		
+		return 
+			String.valueOf(
+			speciesName + ", " + 
+			myPoint.getX()) + ", " + 
+			String.valueOf(myPoint.getY()) + ", " + 
+			String.valueOf(this.radius) +  ", " + 
+			String.valueOf(this.deltaMass) +  ", " + 
+			String.valueOf(this.attached ? 1 : 0) +  ", " +
+			String.valueOf(this.color.getRed()) +  ", " +
+			String.valueOf(this.color.getGreen()) +  ", " +
+			String.valueOf(this.color.getBlue()) +  ", " +
+			String.valueOf(this.lineageId) +  ", " + 
+			String.valueOf(this.history) + ", " + 
+			String.valueOf(this.getNeighborsInRadius(10)) + ", " +
+			String.valueOf(this.lastAttachDetach);
+
 	}
 }

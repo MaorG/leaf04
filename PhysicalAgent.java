@@ -321,7 +321,7 @@ public class PhysicalAgent implements Agent {
 	
 	
 	public static String getGeoHeader() {
-		return "species, X, Y, radius, deltaMass, attached, colorR, colorG, colorB, LineageId, history, neighbors";  
+		return "species, X, Y, radius, deltaMass, attached, colorR, colorG, colorB, LineageId, history, neighbors, lastAttachDetach";  
 
 		//return "species, X, Y, radius, deltaMass, attached, colorR, colorG, colorB, LineageId, history";  
 	}
@@ -341,6 +341,7 @@ public class PhysicalAgent implements Agent {
 			String.valueOf(this.color.getGreen()) +  ", " +
 			String.valueOf(this.color.getBlue()) +  ", " +
 			"0" + ", " + 
+			"0" + ", " +
 			"0" + ", " +
 			"0" + ", ";
 			
