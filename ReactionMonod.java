@@ -43,7 +43,8 @@ public class ReactionMonod extends Reaction{
 		int width = (int) valueLayer.getDimensions().getWidth();
 		int height = (int) valueLayer.getDimensions().getHeight();
 
-
+	    double biomassRelativeYield = yieldMap.get("biomass");
+	    
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				double totalDeltaBioMass = 0;				
@@ -55,7 +56,7 @@ public class ReactionMonod extends Reaction{
 						double conc = valueLayer.get(x,y);
 						double mu = (muMax * conc) / (Ks + conc);
 						double newAgentMass = agentMass * Math.exp(mu * dt);
-						b.tempDeltaAgentMass = newAgentMass - agentMass;
+						b.tempDeltaAgentMass = (newAgentMass - agentMass)  * biomassRelativeYield ;
 						totalDeltaBioMass += b.tempDeltaAgentMass;
 						
 						//b.setMass(newAgentMass);
@@ -65,7 +66,7 @@ public class ReactionMonod extends Reaction{
 				    String key = entry.getKey();
 				    double soluteRelativeYield = entry.getValue();
 
-				    double biomassRelativeYield = yieldMap.get("biomass");
+
 				    
 				    if (!key.equalsIgnoreCase("biomass")) {
 				    	double deltaAmount = totalDeltaBioMass * (soluteRelativeYield / biomassRelativeYield);
