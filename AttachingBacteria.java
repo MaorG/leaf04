@@ -257,7 +257,7 @@ public class AttachingBacteria extends Bacteria {
 		
 		@SuppressWarnings("unchecked")
 		Context<Object> context = ContextUtils.getContext((Object)this);
-		GridWithin<Object> query = new GridWithin<Object>(context, this, radius*gridScaleYInv);
+		GridWithin<Object> query = new GridWithin<Object>(context, this, 2.0*Math.ceil(radius*gridScaleYInv));
 		
 		
 		int count = 0;

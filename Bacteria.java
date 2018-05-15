@@ -173,6 +173,7 @@ public class Bacteria extends PhysicalAgent{
 			
 			Bacteria clone = (Bacteria) zoo.createAgent("DeadBacteria", deathClass);
 			clone.setMass(mass);
+			clone.attached = this.attached;
 			context.add(clone);
 			clone.setLineageId(this.lineageId);
 
