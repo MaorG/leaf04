@@ -120,6 +120,7 @@ public class PhysicalAgent implements Agent {
 
 		int initialNeighborDistance = 5;
 		GridWithin<Object> query = new GridWithin<Object>(context, this, 2.0 + initialNeighborDistance*gridScaleYInv);
+//		GridWithin<Object> query = new GridWithin<Object>(context, this, 2.0 + 1.0*initialNeighborDistance);
 		
 		// instead of computing distance twice, use a map with object as key?
 		this.fX = 0;
