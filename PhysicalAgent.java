@@ -366,5 +366,9 @@ public class PhysicalAgent implements Agent {
 		
 	}
 
+	public void addMass(double d) {
+		setMass(this.mass + d);
+	}
+
 
 }

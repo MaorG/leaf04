@@ -160,6 +160,10 @@ public class Leaf04Context extends DefaultContext<PhysicalAgent> {
 				Reaction reaction = new ReactionMonodVariable(this, reactionNodeList.get(i));
 				reactionMap.put(reaction.name, reaction);
 			}
+			if (reactionType.equalsIgnoreCase("monodUbique")) { 
+				Reaction reaction = new ReactionMonodUbique(this, reactionNodeList.get(i));
+				reactionMap.put(reaction.name, reaction);
+			}			
 			if (reactionType.equalsIgnoreCase("const")) { 
 				Reaction reaction = new ReactionConst(this, reactionNodeList.get(i));
 				reactionMap.put(reaction.name, reaction);

@@ -17,6 +17,8 @@ import repast.simphony.space.continuous.NdPoint;
 import repast.simphony.util.ContextUtils;
 import repast.simphony.valueLayer.GridValueLayer;
 
+import leaf04.PhysicalAgent;
+
 public class AttachingBacteria extends Bacteria {
 
 	public String sensingSolute;

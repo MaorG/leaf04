@@ -50,7 +50,9 @@ public class ComplicatedBacteria extends AntibioticDensityBacteria {
 	@ScheduledMethod ( start = 1, interval = 1, priority = 100)
 	public void checkReactions() {
 		
-
+		if (attachedOn.equals(attachedOff))
+			return;
+	
 		
 		if (attached == true && attachedOn != null) {
 			if(reactionNamesMap.containsKey(attachedOn)) {

@@ -16,14 +16,15 @@ import repast.simphony.context.Context;
 import repast.simphony.space.continuous.ContinuousSpace;
 import repast.simphony.space.grid.Grid;
 import repast.simphony.util.ContextUtils;
+import repast.simphony.util.collections.IndexedIterable;
 import repast.simphony.valueLayer.GridValueLayer;
 
-public class ReactionMonod extends Reaction {
+public class ReactionMonodUbique extends Reaction {
 
 	protected double muMax;
 	protected double Ks;
 
-	public ReactionMonod(Context<PhysicalAgent> context, Node reactionNode) {
+	public ReactionMonodUbique(Context<PhysicalAgent> context, Node reactionNode) {
 		super(context, reactionNode);
 		this.init(reactionNode);
 	}
@@ -45,8 +46,33 @@ public class ReactionMonod extends Reaction {
 		int width = (int) valueLayer.getDimensions().getWidth();
 		int height = (int) valueLayer.getDimensions().getHeight();
 
+		
+		// get total conc and amount for all solutes
+
+		
+		
 		double biomassRelativeYield = yieldMap.get("biomass");
 
+		
+		HashMap<String, Double> totalConcMap = new HashMap<String, Double>();
+		for (Entry<String, Double> entry : yieldMap.entrySet()) {
+			String key = entry.getKey();
+			GridValueLayer someValueLayer = (GridValueLayer) context.getValueLayer(key);
+			double totalConc = 0;
+			if (!key.equalsIgnoreCase("biomass")) {
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {		
+						totalConc += someValueLayer.get(x, y);
+					}
+				}
+				totalConcMap.put(key, totalConc / (height*width));
+			}
+		}
+		
+
+		
+		
+		
 		// sanity
 		OutputManager om = ((OutputManager) ((Leaf04Context) context).getOutputManager());
 
@@ -90,64 +116,71 @@ public class ReactionMonod extends Reaction {
 			totalDomainDeltaMap.put(key, 0.0);
 		}
 
+		
+		
 		// actual reaction with some sanity
+		double totalDeltaBioMass = 0;
+		
+		IndexedIterable<PhysicalAgent> allAgents = context.getObjects(Object.class);
+		for (PhysicalAgent b : allAgents) {
+			if (b.hasReaction(name)) {
+				double agentMass = b.mass;
+				double conc = totalConcMap.get(soluteName);
+				double mu = (muMax * conc) / (Ks + conc);
+				double newAgentMass = agentMass * Math.exp(mu * dt);
+				b.tempDeltaAgentMass = (newAgentMass - agentMass) * biomassRelativeYield;
+				totalDeltaBioMass += b.tempDeltaAgentMass;
 
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				double finalDeltaBiomassPerCell = 0;
-				double totalDeltaBioMass = 0;
-				// apply reaction within grid cell
-				Iterable<PhysicalAgent> agentList = (Iterable<PhysicalAgent>) grid.getObjectsAt(x, y);
-				for (PhysicalAgent b : agentList) {
-					if (b.hasReaction(name)) {
-						double agentMass = b.mass;
-						double conc = valueLayer.get(x, y);
-						double mu = (muMax * conc) / (Ks + conc);
-						double newAgentMass = agentMass * Math.exp(mu * dt);
-						b.tempDeltaAgentMass = (newAgentMass - agentMass) * biomassRelativeYield;
-						totalDeltaBioMass += b.tempDeltaAgentMass;
-
-						// b.setMass(newAgentMass);
-					}
-				}
-
-				for (Entry<String, Double> entry : yieldMap.entrySet()) {
-					String key = entry.getKey();
-					double soluteRelativeYield = entry.getValue();
-
-					if (!key.equalsIgnoreCase("biomass")) {
-						double deltaAmount = totalDeltaBioMass * (soluteRelativeYield / biomassRelativeYield);
-						// TODO take volume into account!!!
-
-						GridValueLayer someValueLayer = (GridValueLayer) context.getValueLayer(key);
-						double initialAmount = someValueLayer.get(x, y) * cellVolume;
-						double finalAmount = Math.max(0.0, initialAmount + deltaAmount);
-						double ratio = 1.0;
-						if (finalAmount == 0.0) {
-							ratio = -initialAmount / deltaAmount;
-						}
-
-						// Todo: in order to make sure that reactions with more than one
-						// non-biomass-solutes will not overdraft,
-						// compare the ratios for all solutes, and choose the minimal
-
-						totalDomainDeltaMap.put(key, (finalAmount - initialAmount) + totalDomainDeltaMap.get(key));
-
-						someValueLayer.set(finalAmount / cellVolume, x, y);
-
-						agentList = (Iterable<PhysicalAgent>) grid.getObjectsAt(x, y);
-						for (PhysicalAgent b : agentList) {
-							if (b.hasReaction(name)) {
-								b.setMass(b.mass + b.tempDeltaAgentMass * ratio);
-								finalDeltaBiomassPerCell += b.tempDeltaAgentMass * ratio;
-							}
-						}
-					}
-
-				}
-				totalDomainDeltaMap.put("biomass", finalDeltaBiomassPerCell + totalDomainDeltaMap.get("biomass"));
+				// b.setMass(newAgentMass);
 			}
 		}
+
+		double finalDeltaBiomass = 0;
+		for (Entry<String, Double> entry : yieldMap.entrySet()) {
+			String key = entry.getKey();
+			double soluteRelativeYield = entry.getValue();
+
+			if (!key.equalsIgnoreCase("biomass")) {
+				double deltaAmount = totalDeltaBioMass * (soluteRelativeYield / biomassRelativeYield);
+				// TODO take volume into account!!!
+
+				double initialAmount = totalConcMap.get(key) * cellVolume * width * height;
+				double finalAmount = Math.max(0.0, initialAmount + deltaAmount);
+				double ratio = 1.0;
+				if (deltaAmount == 0.0) {
+					ratio = 1.0;
+				}
+				else if (finalAmount == 0.0) {
+					ratio = -initialAmount / deltaAmount;
+				}
+
+				// Todo: in order to make sure that reactions with more than one
+				// non-biomass-solutes will not overdraft,
+				// compare the ratios for all solutes, and choose the minimal
+
+				// sanity
+				totalDomainDeltaMap.put(key, (finalAmount - initialAmount) + totalDomainDeltaMap.get(key));
+
+
+				// updating value layer - move to a function
+				GridValueLayer someValueLayer = (GridValueLayer) context.getValueLayer(key);
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {		
+						someValueLayer.set(finalAmount / (cellVolume * width * height), x, y);
+					}
+				}
+				
+				allAgents = context.getObjects(Object.class);
+				for (PhysicalAgent b : allAgents) {
+					if (b.hasReaction(name)) {
+						b.addMass(b.tempDeltaAgentMass * ratio);
+						finalDeltaBiomass += b.tempDeltaAgentMass * ratio;
+					}
+				}
+			}
+
+		}
+		totalDomainDeltaMap.put("biomass", finalDeltaBiomass + totalDomainDeltaMap.get("biomass"));
 
 		// sanity again
 
@@ -156,9 +189,9 @@ public class ReactionMonod extends Reaction {
 		for (Entry<String, Double> entry : totalDomainDeltaMap.entrySet()) {
 			String key = entry.getKey();
 			double val = entry.getValue();
-			deltas = deltas.concat(deltas + eol + key + ": " + String.valueOf(val));
-			System.out.println(key);
-			System.out.println(String.valueOf(val));
+//			deltas = deltas.concat(deltas + eol + key + ": " + String.valueOf(val));
+//			System.out.println(key);
+//			System.out.println(String.valueOf(val));
 		}
 
 		String strDelta = eol + this.name + deltas;

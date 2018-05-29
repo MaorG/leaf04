@@ -45,14 +45,18 @@ public class OutputManager {
 	private Map<String, String> parametersMap;
 	private Map<String, String> outputTypeMap;
 	private Vector<String> tickEventLog;
+	private Vector<String> tickSanityEventLog;
 	Boolean isKeepingLog;
-	Leaf04Context context;
+	Boolean isKeepingSanityLog;
 
+	Leaf04Context context;
+	
 	public OutputManager(Leaf04Context context, Node outputNode, Node simulationNode) {
 
 		parametersMap = new HashMap<String, String>();
 		outputTypeMap = new HashMap<String, String>();
 		tickEventLog = new Vector<String>();
+		tickSanityEventLog = new Vector<String>();
 
 		this.context = context;
 		Node runIdNode = ParserUtils.getNodeByTagName(simulationNode, "runId");
@@ -112,13 +116,108 @@ public class OutputManager {
 		Integer outputLog = ParserUtils.getIntByName(outputNode, "outputLog");
 		isKeepingLog = !(outputLog == null || outputLog == 0);
 		createLogFile();
+
+		Integer sanityLog = ParserUtils.getIntByName(outputNode, "sanityLog");
+		isKeepingSanityLog = !(sanityLog == null || sanityLog == 0);
+		createSanityLogFile();
+	
+	}
+
+	public void addSanityEventStringToLog(String eventStr) {
+		if (isKeepingLog)
+			tickSanityEventLog.add(eventStr);
+	}
+
+	public void createSanityLogFile() {
+		if (!isKeepingLog) {
+			return;
+		}
+		String fileName = "sanitylog";
+
+		String eol = System.getProperty("line.separator");
+
+
+		IndexedIterable<PhysicalAgent> allAgents = context.getObjects(Object.class);
+
+
+
+		String text;
+		BufferedWriter output = null;
+
+		try {
+			File dir = new File(outputRelativePath  + Integer.toString((int) runId));
+			if (!dir.exists()) {
+				if (dir.mkdir()) {
+					System.out.println("Directory is created!");
+				} else {
+					System.out.println("Failed to create directory!   " + outputRelativePath  + Integer.toString((int) runId));
+				}
+			}
+
+
+			File file = new File(outputRelativePath + Integer.toString((int) runId) + "/" + fileName + ".log");
+			output = new BufferedWriter(new FileWriter(file));
+			// todo: move this line..
+			parametersMap.put("runId", Integer.toString((int) runId));
+
+
+			output.write("{parameters}" + eol);
+			for (Entry<String, String> entry : parametersMap.entrySet()) {
+				text = entry.getKey();
+				output.write(text + ", ");
+			}
+			output.write(eol);
+			for (Entry<String, String> entry : parametersMap.entrySet()) {
+				text = entry.getValue();
+				output.write(text + ", ");
+			}
+			output.write(eol);
+
+			output.write("{events}" + eol);
+			// output.write("tick, " + PhysicalAgent.getGeoHeader() +", event"+ eol);
+
+			output.close();
+		} catch ( IOException e ) {
+			e.printStackTrace();
+		} 
+	}
+
+	public void appendSanityLogFile(int ticks) {
+		if (!isKeepingSanityLog) {
+			return;
+		}
+		String fullFileName = outputRelativePath + Integer.toString((int) runId) + "/" + "sanitylog" + ".log";
+		BufferedWriter bw = null;
+
+		try {
+			// APPEND MODE SET HERE
+
+			bw = new BufferedWriter(new FileWriter(fullFileName, true));
+			for (String entry : tickSanityEventLog) {
+				String tickAndEntry = Integer.toString(ticks) + ", " + entry;
+				bw.write(tickAndEntry);
+				bw.newLine();				
+			}
+			bw.flush();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} finally {                       // always close the file
+
+			tickSanityEventLog.clear();		// and clear the events vector
+			if (bw != null) try {
+				bw.close();
+
+			} catch (IOException ioe2) {
+				// just ignore it
+			}
+		} // end try/catch/finally
 	}
 
 	public void addEventStringToLog(String eventStr) {
 		if (isKeepingLog)
 			tickEventLog.add(eventStr);
 	}
-
+	
 	public void createLogFile() {
 		if (!isKeepingLog) {
 			return;
@@ -251,6 +350,7 @@ public class OutputManager {
 	public void output(int ticks) {
 		
 		appendLogFile(ticks);
+		appendSanityLogFile(ticks);
 		if (intervalExpression != null) {
 			Variable T = Variable.make("T");
 			
