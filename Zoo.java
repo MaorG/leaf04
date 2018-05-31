@@ -169,7 +169,7 @@ public class Zoo {
 			agent = new ComplicatedBacteria(speciesName);
 		}
 		if (speciesClassName.equalsIgnoreCase("BiomassYieldBacteria")) {
-			agent = new ComplicatedBacteria(speciesName);
+			agent = new BiomassYieldBacteria(speciesName);
 		}		
 		if (speciesClassName.equalsIgnoreCase("DeadBacteria")) {
 			agent = new DeadBacteria(speciesName);
