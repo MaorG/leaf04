@@ -389,6 +389,7 @@ public class AttachingBacteria extends Bacteria {
 		if (attached == true) {
 			if (detachRandom != null && detachRandomPerTimeStep > rnd) {
 				attached = false;
+				move();
 			}
 		}	
 		else {

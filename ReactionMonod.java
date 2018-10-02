@@ -47,48 +47,48 @@ public class ReactionMonod extends Reaction {
 
 		double biomassRelativeYield = yieldMap.get("biomass");
 
-		// sanity
-		OutputManager om = ((OutputManager) ((Leaf04Context) context).getOutputManager());
-
-		// biomass
-		String eol = System.getProperty("line.separator");
-		double finalTotalBiomass = 0;
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				Iterable<PhysicalAgent> agentList = (Iterable<PhysicalAgent>) grid.getObjectsAt(x, y);
-				for (PhysicalAgent b : agentList) {
-					double agentMass = b.mass;
-					finalTotalBiomass += agentMass;
-				}
-			}
-		}
-		String strBiomass = eol + "total biomass: " + finalTotalBiomass;
-		
-
-		// concentration
-		String strAllConc = "";
-		String strConc = null;
-		for (Entry<String, Double> entry : yieldMap.entrySet()) {
-			String key = entry.getKey();
-			if (!key.equalsIgnoreCase("biomass")) {
-				GridValueLayer someValueLayer = (GridValueLayer) context.getValueLayer(key);
-
-				double amount = 0;
-				for (int y = 0; y < height; y++) {
-					for (int x = 0; x < width; x++) {
-						amount += someValueLayer.get(x, y) * cellVolume;
-					}
-				}
-				strConc = eol + "total " + key + ": " + amount;
-				strAllConc = strAllConc.concat(strConc);
-			}
-		}
-
-		HashMap<String, Double> totalDomainDeltaMap = new HashMap<String, Double>();
-		for (Entry<String, Double> entry : yieldMap.entrySet()) {
-			String key = entry.getKey();
-			totalDomainDeltaMap.put(key, 0.0);
-		}
+//		// sanity
+//		OutputManager om = ((OutputManager) ((Leaf04Context) context).getOutputManager());
+//
+//		// biomass
+//		String eol = System.getProperty("line.separator");
+//		double finalTotalBiomass = 0;
+//		for (int y = 0; y < height; y++) {
+//			for (int x = 0; x < width; x++) {
+//				Iterable<PhysicalAgent> agentList = (Iterable<PhysicalAgent>) grid.getObjectsAt(x, y);
+//				for (PhysicalAgent b : agentList) {
+//					double agentMass = b.mass;
+//					finalTotalBiomass += agentMass;
+//				}
+//			}
+//		}
+//		String strBiomass = eol + "total biomass: " + finalTotalBiomass;
+//		
+//
+//		// concentration
+//		String strAllConc = "";
+//		String strConc = null;
+//		for (Entry<String, Double> entry : yieldMap.entrySet()) {
+//			String key = entry.getKey();
+//			if (!key.equalsIgnoreCase("biomass")) {
+//				GridValueLayer someValueLayer = (GridValueLayer) context.getValueLayer(key);
+//
+//				double amount = 0;
+//				for (int y = 0; y < height; y++) {
+//					for (int x = 0; x < width; x++) {
+//						amount += someValueLayer.get(x, y) * cellVolume;
+//					}
+//				}
+//				strConc = eol + "total " + key + ": " + amount;
+//				strAllConc = strAllConc.concat(strConc);
+//			}
+//		}
+//
+//		HashMap<String, Double> totalDomainDeltaMap = new HashMap<String, Double>();
+//		for (Entry<String, Double> entry : yieldMap.entrySet()) {
+//			String key = entry.getKey();
+//			totalDomainDeltaMap.put(key, 0.0);
+//		}
 
 		// actual reaction with some sanity
 
@@ -131,7 +131,7 @@ public class ReactionMonod extends Reaction {
 						// non-biomass-solutes will not overdraft,
 						// compare the ratios for all solutes, and choose the minimal
 
-						totalDomainDeltaMap.put(key, (finalAmount - initialAmount) + totalDomainDeltaMap.get(key));
+//						totalDomainDeltaMap.put(key, (finalAmount - initialAmount) + totalDomainDeltaMap.get(key));
 
 						someValueLayer.set(finalAmount / cellVolume, x, y);
 
@@ -145,27 +145,27 @@ public class ReactionMonod extends Reaction {
 					}
 
 				}
-				totalDomainDeltaMap.put("biomass", finalDeltaBiomassPerCell + totalDomainDeltaMap.get("biomass"));
+//				totalDomainDeltaMap.put("biomass", finalDeltaBiomassPerCell + totalDomainDeltaMap.get("biomass"));
 			}
 		}
 
 		// sanity again
 
-		String deltas = "";
-
-		for (Entry<String, Double> entry : totalDomainDeltaMap.entrySet()) {
-			String key = entry.getKey();
-			double val = entry.getValue();
-			deltas = deltas.concat(deltas + eol + key + ": " + String.valueOf(val));
-			System.out.println(key);
-			System.out.println(String.valueOf(val));
-		}
-
-		String strDelta = eol + this.name + deltas;
-
-		
-		
-		om.addSanityEventStringToLog(strBiomass + strAllConc + strDelta);
+//		String deltas = "";
+//
+//		for (Entry<String, Double> entry : totalDomainDeltaMap.entrySet()) {
+//			String key = entry.getKey();
+//			double val = entry.getValue();
+//			deltas = deltas.concat(deltas + eol + key + ": " + String.valueOf(val));
+//			System.out.println(key);
+//			System.out.println(String.valueOf(val));
+//		}
+//
+//		String strDelta = eol + this.name + deltas;
+//
+//		
+//		
+//		om.addSanityEventStringToLog(strBiomass + strAllConc + strDelta);
 
 	}
 
